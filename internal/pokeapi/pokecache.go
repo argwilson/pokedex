@@ -1,11 +1,13 @@
 package pokeapi
 
 import (
+	"sync"
 	"time"
 )
 
 type Cache struct {
 	cache map[string]cacheEntry
+	mu    *sync.Mutex
 }
 
 type cacheEntry struct {
