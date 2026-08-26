@@ -7,12 +7,11 @@ import (
 )
 
 func main() {
-	pokeClient := pokeapi.NewClient(5 * time.Second)
-	pokeCache := pokeapi.NewCache(5 * time.Second)
+	pokeClient := pokeapi.NewClient(5*time.Second, time.Minute*5)
 	cfg := &config{
 		commands:      getCommands(),
 		pokeapiClient: pokeClient,
 	}
 
-	startRepl(cfg, pokeCache)
+	startRepl(cfg)
 }
