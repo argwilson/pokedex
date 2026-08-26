@@ -1,6 +1,7 @@
 package pokeapi
 
 import (
+	"bytes"
 	"sync"
 	"time"
 )
@@ -26,25 +27,24 @@ func NewCache(interval time.Duration) Cache {
 	return cache
 }
 
-func (cache Cache) Add(key string, val []byte) Cache {
+func (cache Cache) Add(key string, val []byte) {
 	cache.mu.Lock()
+	defer cache.mu.Unlock()
 	newEntry := cacheEntry{
 		createdAt: time.Now(),
 		val:       val,
 	}
 	cache.cache[key] = newEntry
-	cache.mu.Unlock()
-	return cache
 }
 
 func (cache Cache) Get(key string) (val []byte, b bool) {
 	cache.mu.Lock()
-	if cache.cache[key].val != nil {
-		cache.mu.Unlock()
-		return cache.cache[key].val, true
+	defer cache.mu.Unlock()
+	checkEntry := cache.cache[key]
+	if bytes.Equal(checkEntry.val, nil) {
+		return nil, false
 	}
-	cache.mu.Unlock()
-	return nil, false
+	return checkEntry.val, true
 
 }
 
@@ -52,14 +52,14 @@ func (cache Cache) reapLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	for range ticker.C {
 		cache.mu.Lock()
+		defer cache.mu.Unlock()
 		current := time.Now()
 		for key := range cache.cache {
 			initial := cache.cache[key].createdAt
 			duration := current.Sub(initial)
-			if duration > interval {
+			if duration >= interval {
 				delete(cache.cache, key)
 			}
 		}
-		cache.mu.Unlock()
 	}
 }
