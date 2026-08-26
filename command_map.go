@@ -3,10 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
+
+	"github.com/argwilson/pokedex/internal/pokeapi"
 )
 
-func commandMapf(cfg *config) error {
-	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
+func commandMapf(cfg *config, cache pokeapi.Cache) error {
+
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL, cache)
 	if err != nil {
 		return err
 	}
@@ -20,12 +23,12 @@ func commandMapf(cfg *config) error {
 	return nil
 }
 
-func commandMapb(cfg *config) error {
+func commandMapb(cfg *config, cache pokeapi.Cache) error {
 	if cfg.prevLocationsURL == nil {
 		return errors.New("you're on the first page")
 	}
 
-	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
+	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL, cache)
 	if err != nil {
 		return err
 	}

@@ -16,7 +16,7 @@ type config struct {
 	prevLocationsURL *string
 }
 
-func startRepl(cfg *config) {
+func startRepl(cfg *config, cache pokeapi.Cache) {
 	reader := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
@@ -35,7 +35,7 @@ func startRepl(cfg *config) {
 
 		command, exists := getCommands()[commandName]
 		if exists {
-			err := command.callback(cfg)
+			err := command.callback(cfg, cache)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -56,7 +56,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(cfg *config) error
+	callback    func(cfg *config, cache pokeapi.Cache) error
 }
 
 func getCommands() map[string]cliCommand {

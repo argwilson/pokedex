@@ -1,8 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
 
-func commandHelp(cfg *config) error {
+	"github.com/argwilson/pokedex/internal/pokeapi"
+)
+
+func commandHelp(cfg *config, cache pokeapi.Cache) error {
 	fmt.Println()
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")

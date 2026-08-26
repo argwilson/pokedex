@@ -7,10 +7,20 @@ import (
 )
 
 // ListLocations -
-func (c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
+func (c *Client) ListLocations(pageURL *string, cache Cache) (RespShallowLocations, error) {
 	url := baseURL + "/location-area"
 	if pageURL != nil {
 		url = *pageURL
+	}
+
+	cacheDat, b := cache.Get(url)
+	if b == true {
+		cacheLoccationsResp := RespShallowLocations{}
+		err := json.Unmarshal(cacheDat, &cacheLoccationsResp)
+		if err != nil {
+			return RespShallowLocations{}, err
+		}
+		return cacheLoccationsResp, nil
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -34,6 +44,7 @@ func (c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
 	if err != nil {
 		return RespShallowLocations{}, err
 	}
+	cache.Add(url, dat)
 
 	return locationsResp, nil
 }

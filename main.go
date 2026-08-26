@@ -8,10 +8,11 @@ import (
 
 func main() {
 	pokeClient := pokeapi.NewClient(5 * time.Second)
+	pokeCache := pokeapi.NewCache(5 * time.Second)
 	cfg := &config{
 		commands:      getCommands(),
 		pokeapiClient: pokeClient,
 	}
 
-	startRepl(cfg)
+	startRepl(cfg, pokeCache)
 }

@@ -1,7 +1,6 @@
 package pokeapi
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -42,7 +41,6 @@ func (cache Cache) Get(key string) (val []byte, b bool) {
 		cache.mu.Unlock()
 		return cache.cache[key].val, true
 	}
-	fmt.Printf("%s not found", key)
 	cache.mu.Unlock()
 	return nil, false
 
