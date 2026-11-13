@@ -1,39 +1,32 @@
 package pokecache
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
 
 func TestAddGet(t *testing.T) {
-	const interval = 5 * time.Second
-	cases := []struct {
-		key string
-		val []byte
-	}{
-		{
-			key: "https://example.com",
-			val: []byte("testdata"),
-		},
-		{
-			key: "https://example.com/path",
-			val: []byte("moretestdata"),
-		},
-	}
+	cache := NewCache(time.Hour)
+	cache.Add("first", []byte("original"))
+	cache.Add("second", []byte("other"))
+	cache.Add("first", []byte("updated"))
 
-	for i, c := range cases {
-		t.Run(fmt.Sprintf("Test case %v", i), func(t *testing.T) {
-			cache := NewCache(interval)
-			cache.Add(c.key, c.val)
-			val, ok := cache.Get(c.key)
-			if !ok {
-				t.Errorf("expected to find key")
-				return
+	for _, tc := range []struct {
+		key   string
+		want  string
+		found bool
+	}{
+		{key: "first", want: "updated", found: true},
+		{key: "second", want: "other", found: true},
+		{key: "missing", found: false},
+	} {
+		t.Run(tc.key, func(t *testing.T) {
+			got, ok := cache.Get(tc.key)
+			if ok != tc.found || string(got) != tc.want {
+				t.Fatalf("Get(%q) = %q, %v; want %q, %v", tc.key, got, ok, tc.want, tc.found)
 			}
-			if string(val) != string(c.val) {
-				t.Errorf("expected to find value")
-				return
+			if !ok && got != nil {
+				t.Fatal("missing key should return nil")
 			}
 		})
 	}
